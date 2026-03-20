@@ -20,7 +20,8 @@
       "matricula": "2026003",
       "carrera": "Ingeniería en Sistemas",
       "semestre": 2,
-      "promedio": 7.8
+      "promedio": 7.8,
+      "emancipado": false
     },
     {
       "id": 4,
