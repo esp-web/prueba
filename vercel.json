@@ -5,5 +5,8 @@
     { "src": "style.css", "use": "@vercel/static" },
     { "src": "alumnos.json", "use": "@vercel/static" }
   ],
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+  "routes": [
+    { "src": "/(.+\\.[jcw]s|json|css)$", "dest": "/$1" },
+    { "src": "/(.*)$", "dest": "/index.html" }
+  ]
 }
