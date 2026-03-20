@@ -7,7 +7,10 @@
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "keywords": ["alumnos", "gestión"],
+  "keywords": [
+    "alumnos",
+    "gestión"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
