@@ -1,0 +1,16 @@
+{
+  "name": "gestion-alumnos",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de alumnos",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["alumnos", "gestión"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

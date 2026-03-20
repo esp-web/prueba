@@ -1,0 +1,103 @@
+{
+  "alumnos": [
+    {
+      "id": 2,
+      "nombre": "María",
+      "apellido": "Rodríguez",
+      "correo": "maria.rodriguez@email.com",
+      "telefono": "555-0102",
+      "matricula": "2026002",
+      "carrera": "Administración de Empresas",
+      "semestre": 4,
+      "promedio": 9.2
+    },
+    {
+      "id": 3,
+      "nombre": "Carlos",
+      "apellido": "Martínez",
+      "correo": "carlos.martinez@email.com",
+      "telefono": "555-0103",
+      "matricula": "2026003",
+      "carrera": "Ingeniería en Sistemas",
+      "semestre": 2,
+      "promedio": 7.8
+    },
+    {
+      "id": 4,
+      "nombre": "Ana",
+      "apellido": "López",
+      "correo": "ana.lopez@email.com",
+      "telefono": "555-0104",
+      "matricula": "2026004",
+      "carrera": "Contabilidad",
+      "semestre": 5,
+      "promedio": 8.9
+    },
+    {
+      "id": 5,
+      "nombre": "Luis",
+      "apellido": "Hernández",
+      "correo": "luis.hernandez@email.com",
+      "telefono": "555-0105",
+      "matricula": "2026005",
+      "carrera": "Ingeniería Civil",
+      "semestre": 3,
+      "promedio": 8.1
+    },
+    {
+      "id": 6,
+      "nombre": "Sandra",
+      "apellido": "Pérez",
+      "correo": "sandra.perez@email.com",
+      "telefono": "555-0106",
+      "matricula": "2026006",
+      "carrera": "Psicología",
+      "semestre": 2,
+      "promedio": 9
+    },
+    {
+      "id": 7,
+      "nombre": "Miguel",
+      "apellido": "González",
+      "correo": "miguel.gonzalez@email.com",
+      "telefono": "555-0107",
+      "matricula": "2026007",
+      "carrera": "Ingeniería en Sistemas",
+      "semestre": 4,
+      "promedio": 8.3
+    },
+    {
+      "id": 8,
+      "nombre": "Laura",
+      "apellido": "Flores",
+      "correo": "laura.flores@email.com",
+      "telefono": "555-0108",
+      "matricula": "2026008",
+      "carrera": "Economía",
+      "semestre": 3,
+      "promedio": 8.7
+    },
+    {
+      "id": 9,
+      "nombre": "Javier",
+      "apellido": "Ramírez",
+      "correo": "javier.ramirez@email.com",
+      "telefono": "555-0109",
+      "matricula": "2026009",
+      "carrera": "Administración de Empresas",
+      "semestre": 5,
+      "promedio": 7.9
+    },
+    {
+      "id": 10,
+      "nombre": "Isabel",
+      "apellido": "Torres",
+      "correo": "isabel.torres@email.com",
+      "telefono": "555-0110",
+      "matricula": "2026010",
+      "carrera": "Ingeniería en Sistemas",
+      "semestre": 2,
+      "promedio": 9.1
+    }
+  ]
+}

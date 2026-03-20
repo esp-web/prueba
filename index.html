@@ -1,12 +1,282 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-    <title>Document</title>
+    <title>Gestión de Alumnos</title>
   </head>
   <body>
-    Prueba documento.
+    <div class="container">
+      <h1>Gestión de Alumnos</h1>
+
+      <div class="acordeon">
+        <button class="btn-acordeon" id="btnAcordeon">
+          <span>+ Agregar Nuevo Alumno</span>
+          <span class="indicador">▼</span>
+        </button>
+        <div class="contenido-acordeon" id="contenidoAcordeon">
+          <div class="formulario-nuevo-alumno">
+            <form id="formNuevoAlumno">
+              <div class="form-fila">
+                <div class="form-grupo">
+                  <label for="nombre">Nombre *</label>
+                  <input type="text" id="nombre" required />
+                </div>
+                <div class="form-grupo">
+                  <label for="apellido">Apellido *</label>
+                  <input type="text" id="apellido" required />
+                </div>
+              </div>
+              <div class="form-fila">
+                <div class="form-grupo">
+                  <label for="correo">Correo *</label>
+                  <input type="email" id="correo" required />
+                </div>
+                <div class="form-grupo">
+                  <label for="telefono">Teléfono</label>
+                  <input type="tel" id="telefono" />
+                </div>
+              </div>
+              <div class="form-fila">
+                <div class="form-grupo">
+                  <label for="matricula">Matrícula</label>
+                  <input type="text" id="matricula" />
+                </div>
+                <div class="form-grupo">
+                  <label for="carrera">Carrera</label>
+                  <input type="text" id="carrera" />
+                </div>
+              </div>
+              <div class="form-fila">
+                <div class="form-grupo">
+                  <label for="semestre">Semestre</label>
+                  <input type="number" id="semestre" min="1" />
+                </div>
+                <div class="form-grupo">
+                  <label for="promedio">Promedio</label>
+                  <input type="number" id="promedio" min="0" max="10" step="0.1" />
+                </div>
+              </div>
+              <button type="submit" class="btn-agregar">Agregar Alumno</button>
+            </form>
+            <p id="mensajeForm" class="mensaje"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="filtros">
+        <h2>Filtros</h2>
+        <div class="filtro-grupo">
+          <label for="filtroNombre">Nombre:</label>
+          <input type="text" id="filtroNombre" placeholder="Buscar por nombre" />
+        </div>
+        <div class="filtro-grupo">
+          <label for="filtroApellido">Apellido:</label>
+          <input type="text" id="filtroApellido" placeholder="Buscar por apellido" />
+        </div>
+        <div class="filtro-grupo">
+          <label for="filtroCarrera">Carrera:</label>
+          <input type="text" id="filtroCarrera" placeholder="Buscar por carrera" />
+        </div>
+        <div class="filtro-grupo">
+          <label for="filtroSemestre">Semestre:</label>
+          <input type="number" id="filtroSemestre" placeholder="Buscar por semestre" min="1" />
+        </div>
+        <button id="limpiarFiltros" class="btn-limpiar">Limpiar Filtros</button>
+      </div>
+
+      <div class="tabla-contenedor">
+        <p id="resultados" class="resultados"></p>
+        <table id="tablaAlumnos">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Correo</th>
+              <th>Teléfono</th>
+              <th>Matrícula</th>
+              <th>Carrera</th>
+              <th>Semestre</th>
+              <th>Promedio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTabla">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      let alumnosOriginales = [];
+      let alumnosFiltrados = [];
+
+      // Cargar datos del servidor
+      async function cargarAlumnos() {
+        try {
+          const respuesta = await fetch('/api/alumnos');
+          const datos = await respuesta.json();
+          alumnosOriginales = datos.alumnos;
+          alumnosFiltrados = [...alumnosOriginales];
+          llenarTabla(alumnosFiltrados);
+        } catch (error) {
+          console.error('Error al cargar los alumnos:', error);
+          mostrarMensaje('Error al cargar los alumnos', 'error');
+        }
+      }
+
+      // Llenar tabla con datos
+      function llenarTabla(alumnos) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        cuerpo.innerHTML = '';
+
+        if (alumnos.length === 0) {
+          cuerpo.innerHTML = '<tr><td colspan="10" class="sin-resultados">No se encontraron alumnos</td></tr>';
+        } else {
+          alumnos.forEach(alumno => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+              <td>${alumno.id}</td>
+              <td>${alumno.nombre}</td>
+              <td>${alumno.apellido}</td>
+              <td>${alumno.correo}</td>
+              <td>${alumno.telefono}</td>
+              <td>${alumno.matricula}</td>
+              <td>${alumno.carrera}</td>
+              <td>${alumno.semestre}</td>
+              <td>${alumno.promedio}</td>
+              <td><button class="btn-eliminar" onclick="eliminarAlumno(${alumno.id})">Eliminar</button></td>
+            `;
+            cuerpo.appendChild(fila);
+          });
+        }
+
+        // Actualizar contador de resultados
+        const resultados = document.getElementById('resultados');
+        resultados.textContent = `Mostrando ${alumnos.length} de ${alumnosOriginales.length} alumnos`;
+      }
+
+      // Filtrar tabla
+      function filtrarTabla() {
+        const nombre = document.getElementById('filtroNombre').value.toLowerCase();
+        const apellido = document.getElementById('filtroApellido').value.toLowerCase();
+        const carrera = document.getElementById('filtroCarrera').value.toLowerCase();
+        const semestre = document.getElementById('filtroSemestre').value;
+
+        alumnosFiltrados = alumnosOriginales.filter(alumno => {
+          const coincideNombre = alumno.nombre.toLowerCase().includes(nombre);
+          const coincideApellido = alumno.apellido.toLowerCase().includes(apellido);
+          const coincideCarrera = alumno.carrera.toLowerCase().includes(carrera);
+          const coincideSemestre = semestre === '' || alumno.semestre == semestre;
+
+          return coincideNombre && coincideApellido && coincideCarrera && coincideSemestre;
+        });
+
+        llenarTabla(alumnosFiltrados);
+      }
+
+      // Limpiar filtros
+      function limpiarFiltros() {
+        document.getElementById('filtroNombre').value = '';
+        document.getElementById('filtroApellido').value = '';
+        document.getElementById('filtroCarrera').value = '';
+        document.getElementById('filtroSemestre').value = '';
+        alumnosFiltrados = [...alumnosOriginales];
+        llenarTabla(alumnosFiltrados);
+      }
+
+      // Agregar nuevo alumno
+      async function agregarAlumno(event) {
+        event.preventDefault();
+        
+        const nuevoAlumno = {
+          nombre: document.getElementById('nombre').value,
+          apellido: document.getElementById('apellido').value,
+          correo: document.getElementById('correo').value,
+          telefono: document.getElementById('telefono').value,
+          matricula: document.getElementById('matricula').value,
+          carrera: document.getElementById('carrera').value,
+          semestre: parseInt(document.getElementById('semestre').value) || 1,
+          promedio: parseFloat(document.getElementById('promedio').value) || 0
+        };
+
+        try {
+          const respuesta = await fetch('/api/alumnos', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoAlumno)
+          });
+
+          if (respuesta.ok) {
+            mostrarMensaje('Alumno agregado correctamente', 'exito');
+            document.getElementById('formNuevoAlumno').reset();
+            cargarAlumnos();
+            limpiarFiltros();
+          } else {
+            mostrarMensaje('Error al agregar el alumno', 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          mostrarMensaje('Error de conexión', 'error');
+        }
+      }
+
+      // Eliminar alumno
+      async function eliminarAlumno(id) {
+        if (confirm('¿Está seguro de que desea eliminar este alumno?')) {
+          try {
+            const respuesta = await fetch(`/api/alumnos/${id}`, {
+              method: 'DELETE'
+            });
+
+            if (respuesta.ok) {
+              mostrarMensaje('Alumno eliminado correctamente', 'exito');
+              cargarAlumnos();
+            } else {
+              mostrarMensaje('Error al eliminar el alumno', 'error');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            mostrarMensaje('Error de conexión', 'error');
+          }
+        }
+      }
+
+      // Mostrar mensaje
+      function mostrarMensaje(texto, tipo) {
+        const elemento = document.getElementById('mensajeForm');
+        elemento.textContent = texto;
+        elemento.className = `mensaje ${tipo}`;
+        
+        setTimeout(() => {
+          elemento.textContent = '';
+          elemento.className = 'mensaje';
+        }, 4000);
+      }
+
+      // Event listeners
+      document.getElementById('filtroNombre').addEventListener('input', filtrarTabla);
+      document.getElementById('filtroApellido').addEventListener('input', filtrarTabla);
+      document.getElementById('filtroCarrera').addEventListener('input', filtrarTabla);
+      document.getElementById('filtroSemestre').addEventListener('input', filtrarTabla);
+      document.getElementById('limpiarFiltros').addEventListener('click', limpiarFiltros);
+      document.getElementById('formNuevoAlumno').addEventListener('submit', agregarAlumno);
+
+      // Acordeón
+      const btnAcordeon = document.getElementById('btnAcordeon');
+      const contenidoAcordeon = document.getElementById('contenidoAcordeon');
+
+      btnAcordeon.addEventListener('click', () => {
+        btnAcordeon.classList.toggle('activo');
+        contenidoAcordeon.classList.toggle('activo');
+      });
+
+      // Cargar alumnos al iniciar
+      document.addEventListener('DOMContentLoaded', cargarAlumnos);
+    </script>
   </body>
 </html>
