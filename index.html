@@ -135,18 +135,33 @@
       let alumnosOriginales = [];
       let alumnosFiltrados = [];
 
-      // Cargar datos del servidor
+      const STORAGE_KEY = "gestionAlumnos";
+
+      // Cargar datos desde localStorage o archivo local
       async function cargarAlumnos() {
         try {
-          const respuesta = await fetch("/api/alumnos");
-          const datos = await respuesta.json();
-          alumnosOriginales = datos.alumnos;
+          let datosAlumnos = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+          if (!datosAlumnos) {
+            const respuesta = await fetch("/alumnos.json");
+            if (!respuesta.ok)
+              throw new Error("No se pudo cargar alumnos.json");
+            const json = await respuesta.json();
+            datosAlumnos = json.alumnos || [];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(datosAlumnos));
+          }
+
+          alumnosOriginales = Array.isArray(datosAlumnos) ? datosAlumnos : [];
           alumnosFiltrados = [...alumnosOriginales];
           llenarTabla(alumnosFiltrados);
         } catch (error) {
           console.error("Error al cargar los alumnos:", error);
           mostrarMensaje("Error al cargar los alumnos", "error");
         }
+      }
+
+      function guardarAlumnos() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(alumnosOriginales));
       }
 
       // Llenar tabla con datos
@@ -242,46 +257,40 @@
         };
 
         try {
-          const respuesta = await fetch("/api/alumnos", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(nuevoAlumno),
-          });
-
-          if (respuesta.ok) {
-            mostrarMensaje("Alumno agregado correctamente", "exito");
-            document.getElementById("formNuevoAlumno").reset();
-            cargarAlumnos();
-            limpiarFiltros();
-          } else {
-            mostrarMensaje("Error al agregar el alumno", "error");
+          if (
+            !nuevoAlumno.nombre ||
+            !nuevoAlumno.apellido ||
+            !nuevoAlumno.correo
+          ) {
+            mostrarMensaje("Debe completar nombre, apellido y correo", "error");
+            return;
           }
+
+          const maxId = alumnosOriginales.length
+            ? Math.max(...alumnosOriginales.map((a) => a.id))
+            : 0;
+          nuevoAlumno.id = maxId + 1;
+
+          alumnosOriginales.push(nuevoAlumno);
+          guardarAlumnos();
+
+          mostrarMensaje("Alumno agregado correctamente", "exito");
+          document.getElementById("formNuevoAlumno").reset();
+          cargarAlumnos();
+          limpiarFiltros();
         } catch (error) {
           console.error("Error:", error);
-          mostrarMensaje("Error de conexión", "error");
+          mostrarMensaje("Error al agregar el alumno", "error");
         }
       }
 
       // Eliminar alumno
-      async function eliminarAlumno(id) {
+      function eliminarAlumno(id) {
         if (confirm("¿Está seguro de que desea eliminar este alumno?")) {
-          try {
-            const respuesta = await fetch(`/api/alumnos/${id}`, {
-              method: "DELETE",
-            });
-
-            if (respuesta.ok) {
-              mostrarMensaje("Alumno eliminado correctamente", "exito");
-              cargarAlumnos();
-            } else {
-              mostrarMensaje("Error al eliminar el alumno", "error");
-            }
-          } catch (error) {
-            console.error("Error:", error);
-            mostrarMensaje("Error de conexión", "error");
-          }
+          alumnosOriginales = alumnosOriginales.filter((a) => a.id !== id);
+          guardarAlumnos();
+          mostrarMensaje("Alumno eliminado correctamente", "exito");
+          cargarAlumnos();
         }
       }
 
