@@ -6,7 +6,7 @@
     { "src": "alumnos.json", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/(.+\\.[jcw]s|json|css)$", "dest": "/$1" },
+    { "src": "/(.+\\.(js|css|json))$", "dest": "/$1" },
     { "src": "/(.*)$", "dest": "/index.html" }
   ]
 }
