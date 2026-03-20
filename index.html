@@ -121,9 +121,9 @@
           let datosAlumnos = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
           if (!datosAlumnos) {
-            const respuesta = await fetch("/alumnos.json");
+            const respuesta = await fetch("/api/alumnos");
             if (!respuesta.ok)
-              throw new Error("No se pudo cargar alumnos.json");
+              throw new Error("No se pudo cargar los alumnos");
             const json = await respuesta.json();
             datosAlumnos = json.alumnos || [];
             localStorage.setItem(STORAGE_KEY, JSON.stringify(datosAlumnos));
