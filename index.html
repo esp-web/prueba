@@ -109,41 +109,35 @@
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+      // Inicializar Supabase
+      const SUPABASE_URL = "https://ikkhybqhxnythbwlywfi.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlra2h5YnFoeG55dGhid2x5d2ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMzQ1OTUsImV4cCI6MjA4OTYxMDU5NX0.vV5r22jVdN_8Of2kv-QB-pt-hVZK2sZw7RBUEBv0u5A";
+
+      const { createClient } = window.supabase;
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
       let alumnosOriginales = [];
       let alumnosFiltrados = [];
 
-      const STORAGE_KEY = "gestionAlumnos";
-
-      // Cargar datos desde localStorage o archivo local
+      // Cargar datos desde Supabase
       async function cargarAlumnos() {
         try {
-          let datosAlumnos = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          const { data, error } = await supabase
+            .from("alumnos")
+            .select("*")
+            .order("id", { ascending: true });
 
-          if (!datosAlumnos) {
-            try {
-              const respuesta = await fetch("/alumnos.json");
-              if (!respuesta.ok)
-                throw new Error("No se pudo cargar los alumnos");
-              const json = await respuesta.json();
-              datosAlumnos = json.alumnos || [];
-            } catch (fallbackError) {
-              datosAlumnos = [];
-            }
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(datosAlumnos));
-          }
+          if (error) throw error;
 
-          alumnosOriginales = Array.isArray(datosAlumnos) ? datosAlumnos : [];
+          alumnosOriginales = data || [];
           alumnosFiltrados = [...alumnosOriginales];
           llenarTabla(alumnosFiltrados);
         } catch (error) {
           console.error("Error al cargar los alumnos:", error);
           mostrarMensaje("Error al cargar los alumnos", "error");
         }
-      }
-
-      function guardarAlumnos() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(alumnosOriginales));
       }
 
       // Llenar tabla con datos
@@ -162,11 +156,11 @@
               <td>${alumno.nombre}</td>
               <td>${alumno.apellido}</td>
               <td>${alumno.correo}</td>
-              <td>${alumno.telefono}</td>
-              <td>${alumno.matricula}</td>
-              <td>${alumno.carrera}</td>
-              <td>${alumno.semestre}</td>
-              <td>${alumno.promedio}</td>
+              <td>${alumno.telefono || ""}</td>
+              <td>${alumno.matricula || ""}</td>
+              <td>${alumno.carrera || ""}</td>
+              <td>${alumno.semestre || ""}</td>
+              <td>${alumno.promedio || ""}</td>
               <td><button class="btn-eliminar" onclick="eliminarAlumno(${alumno.id})">Eliminar</button></td>
             `;
             cuerpo.appendChild(fila);
@@ -196,7 +190,7 @@
           const coincideApellido = alumno.apellido
             .toLowerCase()
             .includes(apellido);
-          const coincideCarrera = alumno.carrera
+          const coincideCarrera = (alumno.carrera || "")
             .toLowerCase()
             .includes(carrera);
           const coincideSemestre =
@@ -248,13 +242,11 @@
             return;
           }
 
-          const maxId = alumnosOriginales.length
-            ? Math.max(...alumnosOriginales.map((a) => a.id))
-            : 0;
-          nuevoAlumno.id = maxId + 1;
+          const { error } = await supabase
+            .from("alumnos")
+            .insert([nuevoAlumno]);
 
-          alumnosOriginales.push(nuevoAlumno);
-          guardarAlumnos();
+          if (error) throw error;
 
           mostrarMensaje("Alumno agregado correctamente", "exito");
           document.getElementById("formNuevoAlumno").reset();
@@ -267,12 +259,22 @@
       }
 
       // Eliminar alumno
-      function eliminarAlumno(id) {
+      async function eliminarAlumno(id) {
         if (confirm("¿Está seguro de que desea eliminar este alumno?")) {
-          alumnosOriginales = alumnosOriginales.filter((a) => a.id !== id);
-          guardarAlumnos();
-          mostrarMensaje("Alumno eliminado correctamente", "exito");
-          cargarAlumnos();
+          try {
+            const { error } = await supabase
+              .from("alumnos")
+              .delete()
+              .eq("id", id);
+
+            if (error) throw error;
+
+            mostrarMensaje("Alumno eliminado correctamente", "exito");
+            cargarAlumnos();
+          } catch (error) {
+            console.error("Error:", error);
+            mostrarMensaje("Error al eliminar el alumno", "error");
+          }
         }
       }
 
